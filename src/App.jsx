@@ -1,6 +1,8 @@
 import React from 'react';
 import Page1 from './Page1.js';
 import Page2 from './Page2.js';
+import RaisedButton from 'material-ui/RaisedButton';
+
 
 export default class App extends React.Component {
   constructor(props) {
@@ -15,10 +17,11 @@ export default class App extends React.Component {
     console.log(this.state.currentPage);
     return (
       <div>
-        <h2>Meoww</h2>
-        { this.state.currentPage === 'Home' ? <div><h1>Home Page</h1><button onClick={() => this.redirect('Page1')}> Page 1 goooooo</button></div> : null }
-        { this.state.currentPage === 'Page1' ? <Page1 redirect={this.redirect} /> : null }
-        { this.state.currentPage === 'Page2' ? <Page2 redirect={this.redirect} /> : null }
+      <h2>Meoww</h2>
+      <RaisedButton color="primary">Bold</RaisedButton>
+      { this.state.currentPage === 'Home' ? <div><h1>Home Page</h1><button onClick={() => this.redirect('Page1')}> Page 1 goooooo</button></div> : null }
+      { this.state.currentPage === 'Page1' ? <Page1 redirect={this.redirect} /> : null }
+      { this.state.currentPage === 'Page2' ? <Page2 redirect={this.redirect} /> : null }
       </div>
     );
   }
