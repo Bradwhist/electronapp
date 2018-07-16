@@ -20,3 +20,15 @@ io.on('connection', function(socket) {
     console.log(data);
   });
 });
+
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+
+passport.use(new LocalStrategy(function(user, pass, cb){
+}))
+
+passport.serializeUser(   );
+passport.deserializeUser(    );
+
+app.use(passport.initialize());
+app.use(passport.session());
