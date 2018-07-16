@@ -8,6 +8,7 @@ export default class Page2 extends React.Component {
     return (
       <div>
         <h2 className="page1">Meow Page2</h2>
+        <button onClick={() => this.props.redirect("Home")}>Home James</button>
       </div>
     )
   }
