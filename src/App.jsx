@@ -35,7 +35,7 @@ export default class App extends React.Component {
         editorState={this.state.editorState}
         onChange={this.onChange}
       />
-
+ 
       { this.state.currentPage === 'Home' ? <div><h1>Home Page</h1><button onClick={() => this.redirect('Page1')}> Page 1 goooooo</button></div> : null }
       { this.state.currentPage === 'Page1' ? <Page1 redirect={this.redirect} /> : null }
       { this.state.currentPage === 'Page2' ? <Page2 redirect={this.redirect} /> : null }
@@ -43,4 +43,3 @@ export default class App extends React.Component {
     );
   }
 }
- 
