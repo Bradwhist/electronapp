@@ -1,23 +1,30 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Horizons Docs</title>
-    <link rel="stylesheet" type="text/css" href="./css/main.css">
-  </head>
-  <body>
-    Meow!!!
-    <div id="App">
-    </div>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <title>Horizons Docs</title>
+  <link rel="stylesheet" type="text/css" href="./css/main.css">
+</head>
+<body>
+  Meow title!!!
+  <div id="App">
+  </div>
+</body>
 
-  <script type="text/jsx">
-    import React from 'react';
-    import ReactDOM from 'react-dom';
-    import {AppContainer} from 'react-hot-loader';
-    import App from './App.jsx'
-    ReactDOM.render(<App />,
-    document.getElementById('App'));
+<script type="text/jsx">
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {AppContainer} from 'react-hot-loader';
+import App from './App.jsx';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+
+ReactDOM.render(
+  <AppContainer>
+    <MuiThemeProvider>
+      <App/>
+    </MuiThemeProvider>
+  </AppContainer>,
+  document.getElementById('App'));
   </script>
 
-</html>
+  </html>
