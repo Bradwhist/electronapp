@@ -87,8 +87,8 @@ export default class Document extends React.Component {
     return(
       <div>
         <h1>Document Editor</h1>
-        <div className="editor">
-          <div className="toolbar">
+        <div className="editor"></div>
+          <div className="toolbar"></div>
             {/* <RaisedButton style={{fontWeight:'bold'}} onMouseDown={(e) => this.toggleInlineStyle(e, 'BOLD')}>B</RaisedButton>
             <RaisedButton style={{fontStyle:'italic'}} onMouseDown={(e) => this.toggleInlineStyle(e, 'ITALIC')}>I</RaisedButton>
             <RaisedButton {{textDecoration:'underline'}} onMouseDown={(e) => this.toggleInlineStyle(e, 'UNDERLINE')}>U</RaisedButton>
@@ -96,14 +96,14 @@ export default class Document extends React.Component {
             <RaisedButton onMouseDown={(e) => this.toggleInlineStyle(e, 'UPPERCASE')}>A</RaisedButton>
             <RaisedButton onMouseDown={(e) => this.toggleInlineStyle(e, 'LOWERCASE')}>a</RaisedButton> */}
 
-            <button onMouseDown={(e) => this.toggleInlineStyle(e, 'BOLD')}>B</button>
+            {/* <button onMouseDown={(e) => this.toggleInlineStyle(e, 'BOLD')}>B</button>
             <button onMouseDown={(e) => this.toggleInlineStyle(e, 'ITALIC')}>I</button>
             <button onMouseDown={(e) => this.toggleInlineStyle(e, 'UNDERLINE')}>U</button>
             <button onMouseDown={(e) => this.toggleInlineStyle(e, 'STRIKETHROUGH')}>S</button>
             <button onMouseDown={(e) => this.toggleInlineStyle(e, 'UPPERCASE')}>ABC</button>
-            <button onMouseDown={(e) => this.toggleInlineStyle(e, 'LOWERCASE')}>xyz</button>
+            <button onMouseDown={(e) => this.toggleInlineStyle(e, 'LOWERCASE')}>xyz</button> */}
 
-            <button onMouseDown={(e) => this.toggleBlockType(e, 'unordered-list-item')}>
+            {/* <button onMouseDown={(e) => this.toggleBlockType(e, 'unordered-list-item')}>
               <SideIconContainer icon={list2}/>
             </button>
             <button onMouseDown={(e) => this.toggleBlockType(e, 'ordered-list-item')}>
@@ -133,7 +133,7 @@ export default class Document extends React.Component {
                 blockStyleFn={this.myBlockStyleFn}
               />
             </div>
-            <button onClick={() => this.props.redirect("Home")}>Home James</button>
+            <button onClick={() => this.props.redirect("Home")}>Home James</button> */}
           </div>
         )
       }
