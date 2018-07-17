@@ -4,6 +4,14 @@ import RaisedButton from 'material-ui/RaisedButton';
 import ColorPicker, { colorPickerPlugin } from 'draft-js-color-picker';
 // import 'react-color-picker/index.css'
 
+import {withBaseIcon} from 'react-icons-kit';
+import {listNumbered} from 'react-icons-kit/icomoon';
+import {list2} from 'react-icons-kit/icomoon';
+
+const SideIconContainer = withBaseIcon({size:20, style: {
+  top:'50%', height:'10em', marginTop:'-5em', width:'100%'
+}})
+
 const presetColors = [
   '#ff00aa',
   '#F5A623',
@@ -89,8 +97,12 @@ export default class Document extends React.Component {
             <button onMouseDown={(e) => this.toggleInlineStyle(e, 'UPPERCASE')}>ABC</button>
             <button onMouseDown={(e) => this.toggleInlineStyle(e, 'LOWERCASE')}>xyz</button>
 
-            <button onMouseDown={(e) => this.toggleBlockType(e, 'unordered-list-item')}> Unordered List</button>
-            <button onMouseDown={(e) => this.toggleBlockType(e, 'ordered-list-item')}> Ordered List</button>
+            <button onMouseDown={(e) => this.toggleBlockType(e, 'unordered-list-item')}>
+              <SideIconContainer icon={list2}/>
+            </button>
+            <button onMouseDown={(e) => this.toggleBlockType(e, 'ordered-list-item')}>
+              <SideIconContainer icon={listNumbered}/>
+            </button>
             <button onMouseDown={(e) => this.alignRight(e)}>Align Right</button>
             <button onMouseDown={(e) => this.alignLeft(e)}>Align Left</button>
             <button onMouseDown={(e) => this.alignCenter(e)}>Center</button>
