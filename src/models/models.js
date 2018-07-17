@@ -22,8 +22,12 @@ var UserSchema =  new Schema(
     },
   });
 
-  // var docScheme = new Schema(
+  // var docSchema = new Schema(
   //   {
+  //     doc: {
+  //       owner: String,
+  //       contributors: Array,
+  //     }
   //
   //   });
 

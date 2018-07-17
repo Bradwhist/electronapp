@@ -47,8 +47,11 @@ export default class App extends React.Component {
     console.log(this.state.currentPage);
     return (
       <div>
-      <h2>Meoww</h2>
-      { this.state.currentPage === 'Home' ? <div><h1>Home Page</h1><button onClick={() => this.redirect('Register')}> Page 1 goooooo</button></div> : null }
+      <h2>Horizons Docs</h2>
+      { this.state.currentPage === 'Home' ?
+      <div><button onClick={() => this.redirect('Register')}> Sign up</button>
+      <button onClick={() => this.redirect('Login')}> Sign in</button></div> : null }
+      { this.state.currentPage === 'Login' ? <Login redirect={this.redirect} /> : null }
       { this.state.currentPage === 'Register' ? <Register redirect={this.redirect} /> : null }
       { this.state.currentPage === 'Page1' ? <Page1 redirect={this.redirect} /> : null }
       { this.state.currentPage === 'Page2' ? <Page2 redirect={this.redirect} /> : null }
