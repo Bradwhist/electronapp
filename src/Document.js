@@ -22,13 +22,13 @@ const presetColors = [
   '#9B9B9B',
   '#FFFFFF',
 ];
-
-import { withBaseIcon } from 'react-icons-kit';
-import { listNumbered } from 'react-icons-kit/icomoon';
-import {list2} from 'react-icons-kit/icomoon';
-
-const SideIconContainer =
-    withBaseIcon({ size: 20, style: {top:'50%', height:'10em', marginTop:'-5em', width:'100%'}})
+// 
+// import { withBaseIcon } from 'react-icons-kit';
+// import { listNumbered } from 'react-icons-kit/icomoon';
+// import {list2} from 'react-icons-kit/icomoon';
+//
+// const SideIconContainer =
+//     withBaseIcon({ size: 20, style: {top:'50%', height:'10em', marginTop:'-5em', width:'100%'}})
 
 const styleMap = {
   'UPPERCASE': {
@@ -73,15 +73,15 @@ export default class Document extends React.Component {
   }
 
   myBlockStyleFn(contentBlock) {
-  const type = contentBlock.getType();
-  if (type === 'right') {
-    return 'align-right';
-  } else if (type === 'left') {
-    return 'align-left'
-  } else if (type === 'center') {
-    return 'align-center'
+    const type = contentBlock.getType();
+    if (type === 'right') {
+      return 'align-right';
+    } else if (type === 'left') {
+      return 'align-left'
+    } else if (type === 'center') {
+      return 'align-center'
+    }
   }
-}
 
   render() {
     return(
