@@ -21,23 +21,23 @@ io.on('connection', function(socket) {
   });
 });
 
-var passport = require('passport');
-var bcrypt = require('bcrypt');
-var LocalStrategy = require('passport-local').Strategy;
-
-passport.use(new LocalStrategy(function(user, pass, cb){
-  findUser(username, (err, user) => {
-    if (err) {
-      return done(err)
-    }
-    if (!user) {
-      return done(null, false)
-    }
-  })
-}))
-
-passport.serializeUser(   );
-passport.deserializeUser(    );
-
-app.use(passport.initialize());
-app.use(passport.session());
+// var passport = require('passport');
+// var bcrypt = require('bcrypt');
+// var LocalStrategy = require('passport-local').Strategy;
+//
+// passport.use(new LocalStrategy(function(user, pass, cb){
+//   findUser(username, (err, user) => {
+//     if (err) {
+//       return done(err)
+//     }
+//     if (!user) {
+//       return done(null, false)
+//     }
+//   })
+// }))
+//
+// passport.serializeUser(   );
+// passport.deserializeUser(    );
+//
+// app.use(passport.initialize());
+// app.use(passport.session());

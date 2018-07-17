@@ -42,15 +42,12 @@ export default class App extends React.Component {
     return (
       <div>
       <h2>Meoww</h2>
-<<<<<<< HEAD
       <RaisedButton color="primary" onMouseDown={(e) => this._onBoldClick(e)}>Bold</RaisedButton>
       <Editor
         editorState={this.state.editorState}
         onChange={this.onChange}
       />
- 
-=======
->>>>>>> ecb75db0d126c3a5f2d3f83805653b0813e6ebd0
+
       { this.state.currentPage === 'Home' ? <div><h1>Home Page</h1><button onClick={() => this.redirect('Page1')}> Page 1 goooooo</button></div> : null }
       { this.state.currentPage === 'Page1' ? <Page1 redirect={this.redirect} /> : null }
       { this.state.currentPage === 'Page2' ? <Page2 redirect={this.redirect} /> : null }
