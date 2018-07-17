@@ -1,14 +1,13 @@
 import React from 'react';
 import {Editor, EditorState} from 'draft-js';
 import RaisedButton from 'material-ui/RaisedButton';
-import io from 'socket.io-client';
 
 export default class Document extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       editorState: EditorState.createEmpty(),
-      socket: io('http://localhost:8080'),
+      // socket: io('http://localhost:8080'),
     }
         this.onChange = (editorState) => this.setState({editorState});
   }

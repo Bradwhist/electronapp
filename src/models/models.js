@@ -7,21 +7,25 @@ var Schema = mongoose.Schema
 
 var UserSchema =  new Schema(
   {
-    username: {
+    user: {
       type: String,
-      required: true
+      required: true,
+      index: {unique: true}
     },
-    email: {
-      type: String,
-      required: true
-    },
-    password: {
+    // email: {
+    //   type: String,
+    //
+    // },
+    pass: {
       type: String,
       required: true,
     },
   });
 
-  var docScheme = new Schema(
-    {
+  // var docScheme = new Schema(
+  //   {
+  //
+  //   });
 
-    });
+
+  module.exports = mongoose.model('User', UserSchema);
