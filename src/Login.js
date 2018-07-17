@@ -5,19 +5,35 @@ export default class Login extends React.Component {
     super(props)
     this.state = {
       user: '',
-      pass: '',
+      pass: ''
     }
   }
 
   userChange(event) {
-    this.setState({title: event.target.value})
+    this.setState({user: event.target.value})
   };
 
   passChange(event) {
     this.setState({pass: event.target.value})
   };
 
-  clickHandler() {}
+  clickHandler() {
+    fetch('http://localhost:3000/login', {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        user: this.state.user,
+        pass: this.state.pass,
+      })
+    })
+    .then(response => response.json())
+    .then(response => this.setState({
+      user: response.user,
+    }))
+    .catch(err => console.log("login error", err));
+  }
 
   render() {
     return (
@@ -26,7 +42,8 @@ export default class Login extends React.Component {
       onChange={this.userChange.bind(this)}/>
       <input type="text" name="pass" value={this.state.pass}
       onChange={this.passChange.bind(this)}/>
-      <button onClick={this.clickHandler}>Words</button>
+      <button onClick={this.clickHandler.bind(this)}>Login</button>
+      <button onClick={() => this.props.redirect("Register")}>Sign Up</button>
       </div>
     )
   }

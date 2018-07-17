@@ -48,7 +48,7 @@ export default class Register extends React.Component {
         <input type="text" name="pass" value={this.state.pass}
         onChange={this.passChange.bind(this)}/>
         <button onClick={this.clickHandler.bind(this)}>Register</button>
-        <button onClick={() => this.props.redirect("Page1")}>Go to Page 1</button>
+        <button onClick={() => this.props.redirect("Login")}>Sign in</button>
       </div>
     )
   }

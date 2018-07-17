@@ -54,6 +54,17 @@ app.post('/register', function(req, res) {
     pass: req.body.pass,
   });
 
+  app.post('/login', passport.authenticate('local', { failureRedirect: '/?error=LoginError', failureFlash: true }), (req, res, next) => {
+  		console.log('/login handler');
+  		req.session.save((err) => {
+  				if (err) {
+  						return next(err);
+  				}
+
+  				res.status(200).send('OK');
+  		});
+  });
+
   newUser.save(function(error, results){
     if (error) {
       console.log("error:", error);
