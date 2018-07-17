@@ -31,8 +31,10 @@ app.use(bodyParser.json())
 app.use(passport.initialize());
 app.use(passport.session());
 
-// passport.serializeUser(   );
-// passport.deserializeUser(    );
+passport.serializeUser((user, done) => done(null, user.id));
+passport.deserializeUser((id, done) => User.findById(id, function(err, user) {
+  done(err, user);
+}););
 
 var localSignupStrategy = require('./server/passport/local-signup');
 var localLoginStrategy = require('./server/passport/local-login');
@@ -49,30 +51,35 @@ app.use('/api', apiRoutes);
 
 app.post('/register', function(req, res) {
   console.log(req.body);
+
   var newUser = new User({
     user: req.body.user,
     pass: req.body.pass,
   });
 
-  app.post('/login', passport.authenticate('local', { failureRedirect: '/?error=LoginError', failureFlash: true }), (req, res, next) => {
-  		console.log('/login handler');
-  		req.session.save((err) => {
-  				if (err) {
-  						return next(err);
-  				}
-
-  				res.status(200).send('OK');
-  		});
-  });
-
-  newUser.save(function(error, results){
+  newUser.save(function(error, results) {
     if (error) {
       console.log("error:", error);
     } else {
       res.json(results);
     }
-  })
-})
+  });
+});
+
+app.post('/login', passport.authenticate('local',
+{
+  failureRedirect: '/?error=LoginError',
+  failureFlash: true
+}), (req, res, next) => {
+    console.log('/login handler');
+    req.session.save((err) => {
+        if (err) {
+            return next(err);
+        }
+
+        res.status(200).send('OK');
+    });
+});
 
 server.listen(8080);
 io.on('connection', function(socket) {
@@ -87,4 +94,4 @@ app.set('port', (process.env.Port || 3000));
 
 app.listen(app.get('port'), () => {
   console.log(`Server is running on port ${app.get('port')}`)
-})
+});
