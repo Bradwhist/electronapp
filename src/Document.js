@@ -103,8 +103,12 @@ export default class Document extends React.Component {
             <button onMouseDown={(e) => this.toggleInlineStyle(e, 'UPPERCASE')}>ABC</button>
             <button onMouseDown={(e) => this.toggleInlineStyle(e, 'LOWERCASE')}>xyz</button>
 
-            <button onMouseDown={(e) => this.toggleBlockType(e, 'unordered-list-item')}> Unordered List</button>
-            <button onMouseDown={(e) => this.toggleBlockType(e, 'ordered-list-item')}> Ordered List</button>
+            <button onMouseDown={(e) => this.toggleBlockType(e, 'unordered-list-item')}>
+              <SideIconContainer icon={list2}/>
+            </button>
+            <button onMouseDown={(e) => this.toggleBlockType(e, 'ordered-list-item')}>
+              <SideIconContainer icon={listNumbered}/>
+            </button>
             <button onMouseDown={(e) => this.alignRight(e)}>Align Right</button>
             <button onMouseDown={(e) => this.alignLeft(e)}>Align Left</button>
             <button onMouseDown={(e) => this.alignCenter(e)}>Center</button>
