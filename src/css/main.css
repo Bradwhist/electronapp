@@ -10,3 +10,9 @@ h2 {
 .page2 {
   color: green;
 }
+
+.editor {
+  min-height: 300px;
+  padding: 10px;
+  border: solid 2px black;
+}

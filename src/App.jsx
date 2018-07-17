@@ -2,6 +2,8 @@ import React from 'react';
 import Page1 from './Page1.js';
 import Page2 from './Page2.js';
 import Document from './Document.js';
+import Login from './Login.js';
+import Register from './Register.js';
 import RaisedButton from 'material-ui/RaisedButton';
 import { Editor, EditorState, RichUtils } from 'draft-js';
 import io from 'socket.io-client';
@@ -13,6 +15,7 @@ export default class App extends React.Component {
     this.state = {
       currentPage: 'Home',
       socket: io('http://localhost:8080'),
+      authenticated: false
 
     };
     this.redirect = this.redirect.bind(this);
@@ -28,6 +31,9 @@ export default class App extends React.Component {
       console.log('ws msg:', data);
       this.state.socket.emit('cmd', {foo:123})
     });
+    this.toggleAuthenticateStatus = () => {
+      this.setState({ authenticated: Auth.isUserAuthenticated() })
+    }
   }
 
 
@@ -42,13 +48,8 @@ export default class App extends React.Component {
     return (
       <div>
       <h2>Meoww</h2>
-      <RaisedButton color="primary" onMouseDown={(e) => this._onBoldClick(e)}>Bold</RaisedButton>
-      <Editor
-        editorState={this.state.editorState}
-        onChange={this.onChange}
-      />
-
-      { this.state.currentPage === 'Home' ? <div><h1>Home Page</h1><button onClick={() => this.redirect('Page1')}> Page 1 goooooo</button></div> : null }
+      { this.state.currentPage === 'Home' ? <div><h1>Home Page</h1><button onClick={() => this.redirect('Register')}> Page 1 goooooo</button></div> : null }
+      { this.state.currentPage === 'Register' ? <Register redirect={this.redirect} /> : null }
       { this.state.currentPage === 'Page1' ? <Page1 redirect={this.redirect} /> : null }
       { this.state.currentPage === 'Page2' ? <Page2 redirect={this.redirect} /> : null }
       { this.state.currentPage === 'Document' ? <Document redirect={this.redirect} /> : null }
