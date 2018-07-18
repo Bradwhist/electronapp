@@ -16,10 +16,12 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var express = require('express');
 var session = require('express-session');
-var RedisStore = require('connect-redis')(session);
+//var RedisStore = require('connect-redis')(session);
+var MongoStore = require('connect-mongo')(session);
 var config = require('./config');
-var bodyParser = require('express');
+var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var cookieParser = require('cookie-parser');
 mongoose.connect(process.env.MONGODB_URI);
 var Models = require('./src/models');
 var authRoutes = require('./server/routes/auth.js');
@@ -32,7 +34,12 @@ var Doc = Models.Doc;
 
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json())
+app.use(cookieParser())
 
+app.use(session({
+  secret: 'xxxx',
+  store: new MongoStore({ mongooseConnection: mongoose.connection })
+ }));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -43,7 +50,7 @@ passport.serializeUser(function(user, done){
 // Passport Deserialize
 
 passport.deserializeUser(function(id, done) {
-  models.User.findById(id, function(err, user) {
+  Models.User.findById(id, function(err, user) {
     done(err, user);
   });
 });
@@ -55,6 +62,8 @@ passport.use(new LocalStrategy({
 },
   function (username, password, done) {
   // find the user with the given email
+  console.log(username);
+  console.log(password);
 Models.User.findOne({user: username}, function(err, user) {
   // if there's an error, finish trying to authenticate (auth failed)
     if (err) {

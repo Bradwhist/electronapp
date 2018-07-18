@@ -7,6 +7,7 @@ import Register from './Register.js';
 import RaisedButton from 'material-ui/RaisedButton';
 import { Editor, EditorState, RichUtils } from 'draft-js';
 import io from 'socket.io-client';
+import axios from 'axios';
 
 
 export default class App extends React.Component {
@@ -66,7 +67,7 @@ export default class App extends React.Component {
   }
 
   render() {
-    
+
     console.log(this.state.isLogged);
     return (
       <div>

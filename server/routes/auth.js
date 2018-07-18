@@ -43,17 +43,19 @@ module.exports = function(passport) {
   //   res.json({'user': req.user});
   // });
   router.post('/login',  passport.authenticate('local', { successRedirect: '/auth/currentUser',
-   failureRedirect: '/login', }));
+   failureRedirect: '/auth/login', }));
 
-
-  // GET Logout page
+   // GET Logout page
 
   router.get('/currentUser', function(req, res) {
-    console.log(req.user);
+    console.log(req.session);
     if (!req.user) {
       res.json(false);
     } else {
-      res.json(req.user);
+      res.status(200).json({
+        user: req.user,
+
+      });
     }
   });
 

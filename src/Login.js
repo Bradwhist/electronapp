@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 
 export default class Login extends React.Component {
   constructor(props) {
@@ -18,23 +19,33 @@ export default class Login extends React.Component {
   };
 
   clickHandler() {
-    fetch('http://localhost:3000/auth/login', {
-      method: 'POST',
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
+    console.log(this.state.user);
+    console.log(this.state.pass);
+    // fetch('http://localhost:3000/auth/login', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json'
+    //   },
+    //   body: JSON.stringify({
+    //     user: this.state.user,
+    //     pass: this.state.pass,
+    //   })
+    // })
+    axios({
+      method: 'post',
+      url: 'http://localhost:3000/auth/login',
+      data: {
         user: this.state.user,
         pass: this.state.pass,
-      })
+      }
     })
-    .then(response => response.json())
+    // .then(response => response.json())
     .then(response => {
       console.log('login response');
       console.log(response);
-      this.setState({
-        user: response.user.user,
-      })
+      // this.setState({
+      //   user: response.data.user,
+      // })
       if (response) {
         this.props.onLogin();
       }
