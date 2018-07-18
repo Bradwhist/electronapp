@@ -18,7 +18,7 @@ export default class Login extends React.Component {
   };
 
   clickHandler() {
-    fetch('http://localhost:3000/login', {
+    fetch('http://localhost:3000/auth/login', {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
@@ -29,15 +29,26 @@ export default class Login extends React.Component {
       })
     })
     .then(response => response.json())
-    .then(response => this.setState({
-      user: response.user,
-    }))
+    .then(response => {
+      console.log('login response');
+      console.log(response);
+      this.setState({
+        user: response.user.user,
+      })
+      if (response) {
+        this.props.onLogin();
+      }
+      this.props.redirect('Profile')
+
+    })
+
     .catch(err => console.log("login error", err));
   }
 
   render() {
     return (
       <div>
+      <h1>Log In</h1>
       <input type="text" name="user" value={this.state.user}
       onChange={this.userChange.bind(this)}/>
       <input type="text" name="pass" value={this.state.pass}

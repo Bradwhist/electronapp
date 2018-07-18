@@ -11,7 +11,7 @@ export default class Register extends React.Component {
   }
 
   clickHandler() {
-  fetch('http://localhost:3000/register', {
+  fetch('http://localhost:3000/auth/signup', {
     method: 'POST',
     headers: {
       "Content-Type": "application/json"
@@ -43,6 +43,7 @@ export default class Register extends React.Component {
     console.log(this.state);
     return (
       <div>
+      <h1> Register </h1>
         <input type="text" name="user" value={this.state.user}
         onChange={this.userChange.bind(this)}/>
         <input type="text" name="pass" value={this.state.pass}
