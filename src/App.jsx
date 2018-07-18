@@ -79,11 +79,13 @@ export default class App extends React.Component {
         <div>
       <button onClick={() => this.redirect('Register')}> Sign up</button>
       <button onClick={() => this.redirect('Login')}> Sign in</button>
+      <button onClick={() => this.redirect('Document')}>Document</button>
       </div>
       :
       <div>
       <button onClick={() => this.redirect('Profile')}> My Profile</button>
       <button onClick={() => this.onLogout()}>Logout</button>
+      <button onClick={() => this.redirect('Document')}>Document</button>
       </div>
       }
 
