@@ -17,7 +17,6 @@ var LocalStrategy = require('passport-local').Strategy;
 var express = require('express');
 var session = require('express-session');
 var RedisStore = require('connect-redis')(session);
-var routes = require('./routes');
 var config = require('./config');
 var bodyParser = require('express');
 var mongoose = require('mongoose');
@@ -31,7 +30,7 @@ var Doc = Models.Doc;
 // mongoose.Promise = global.Promise;
 //require('./server/models').connect(config.dbUri);
 
-app.use(bodyParser.urlencoded({ extended: false}));
+app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json())
 
 app.use(passport.initialize());

@@ -39,9 +39,12 @@ module.exports = function(passport) {
 
 
   // POST Login page
-  router.post('/login', passport.authenticate('local'), function(req, res) {
-    res.json({'user': req.user});
-  });
+  // router.post('/login', passport.authenticate('local'), function(req, res) {
+  //   res.json({'user': req.user});
+  // });
+  router.post('/login',  passport.authenticate('local', { successRedirect: '/auth/currentUser',
+   failureRedirect: '/login', }));
+
 
   // GET Logout page
 
