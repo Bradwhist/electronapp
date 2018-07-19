@@ -8,7 +8,6 @@ import RaisedButton from 'material-ui/RaisedButton';
 import { Editor, EditorState, RichUtils } from 'draft-js';
 import io from 'socket.io-client';
 
-
 export default class App extends React.Component {
   constructor(props) {
     super(props);
