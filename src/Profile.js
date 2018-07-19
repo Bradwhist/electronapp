@@ -6,26 +6,80 @@ export default class Profile extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      docs: [],
+      ownDocs: [],
+      collabDocs: [],
+      currentId: null,
     }
 
   }
+
+  updateUser = () => {
+
+    axios({
+      method: 'get',
+      url: 'http://localhost:3000/auth/currentUser'
+    })
+    .then(response => {
+
+      this.setState({currentId: response.data.user._id});
+
+    })
+  }
+  // updateUser = () => {
+  //   var ret = "test"
+  //   fetch('http://localhost:3000/auth/currentUser', {
+  //     method: 'get',
+  //     credentials: 'same-origin'
+  //   })
+  //   .then(response => {
+  //
+  //     console.log(response);
+  //     return response.json();
+  //
+  //   })
+  //   .then(responseJson => {
+  //     console.log(responseJson.user._id);
+  //     ret = responseJson.user._id
+  //   })
+  //   return ret;
+  // }
+
   updateDocs = () => {
+
   axios({
     method: 'get',
-    url: 'http://localhost:3000/auth/doc',
+    url: 'http://localhost:3000/auth/doc/own',
 
   })
   .then(response => {
-    this.setState({docs: response.data})
+    console.log(response.data);
+    console.log(this.state.currentId);
+    // var ownDocs = response.data.slice().filter(ele => {ele.owner === this.state.currentId})
+    // var collabDocs = response.data.slice().filter(ele => {ele.owner !== this.state.currentId})
+    console.log(response.data.filter(ele => {return ele.owner === this.state.currentId}));
+    //console.log(collabDocs);
+    this.setState({
+      ownDocs: response.data.filter(ele => {return ele.owner === this.state.currentId}),
+      collabDocs: response.data.filter(ele => {return ele.owner !== this.state.currentId}),
+  })
   })
   .catch(err => console.log(err))
 
 }
 
+testDocs = () => {
+  axios({
+    method: 'get',
+    url: 'http://localhost:3000/auth/doc/own'
+  })
+  .then(response => console.log(response));
+}
+
 
   componentDidMount () {
-    this.updateDocs()
+
+    this.updateUser();
+    this.updateDocs();
 
 }
 
@@ -52,21 +106,32 @@ export default class Profile extends React.Component {
       url: 'http://localhost:3000/auth/doc',
       data: {}
     })
-    .then(response => this.props.onNewDoc(response.data._id))
+    .then(response => this.props.onNewDoc(response.data))
     // .then(response => response.json())
     // .then(response => )
 
   }
   render() {
-    console.log(this.state.docs);
+
+
     return (
       <div>
         <h2 className="profile">User Profile</h2>
         <button onClick={() => this.clickHandler()}>New Document</button>
         <button onClick={this.logout.bind(this)}>Logout</button>
-        <h1>All Docs</h1>
+        <button onClick={() => this.testDocs()}>Test doc loader</button>
+        <h2>Your Docs</h2>
         <ul>
-        {this.state.docs.map(doc => (
+        {this.state.ownDocs.map(doc => (
+          <li>
+            <p>{doc.title}---{doc.owner}</p>
+            <button onClick={() => this.props.onNewDoc(doc)}>Edit</button>
+          </li>
+        ))}
+        </ul>
+        <h2>Docs You Are Collaborating On</h2>
+        <ul>
+        {this.state.collabDocs.map(doc => (
           <li>
             <p>{doc.title}---{doc.owner}</p>
             <button onClick={() => this.props.onNewDoc(doc)}>Edit</button>

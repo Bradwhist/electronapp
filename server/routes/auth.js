@@ -24,7 +24,6 @@ module.exports = function(passport) {
       //    There is a way to change the name it expects, but this is fine.
       user: req.body.user,
       pass: req.body.pass,
-
     });
 
     u.save(function(err, user) {
@@ -60,16 +59,17 @@ module.exports = function(passport) {
    });
 
    // GET Logout page
-   router.use(function(req, res, next){
-     if (req.user) {
-       return next();
-     } else {
-       res.json({
-         loggedIn: false
-       })
-     }
-   })
-
+   //////////////////////////////////////////////
+   // router.use(function(req, res, next){
+   //   if (req.user) {
+   //     return next();
+   //   } else {
+   //     res.json({
+   //       loggedIn: false
+   //     })
+   //   }
+   // })
+   //////////////////////////////////////////////
 
 
   router.get('/test', function(req, res) {
@@ -80,42 +80,105 @@ module.exports = function(passport) {
     }
   })
 
+  // router.post('/doc', function(req, res) {
+  //   var currentTime = new Date();
+  //   var newDoc = new models.Doc({
+  //    content: '',
+  //    owner: req.user.id,
+  //    collaboratorList: [],
+  //    title: 'untitled',
+  //    password: '',
+  //    createdTime: currentTime,
+  //    lastEditTime: currentTime,
+  //  })
+  //  newDoc.save(function(err, doc) {
+  //    if (err) {
+  //      console.log(err)
+  //    } else {
+  //      User.findById(req.user.id).exec()
+  //      .then(user => {
+  //        user.ownList.push(doc._id);
+  //        user.save();
+  //      })
+  //      .then(user => res.json(doc))
+  //      .catch(err => res.send(err))
+  //    }
+  //  })
+  // })
   router.post('/doc', function(req, res) {
     var currentTime = new Date();
     var newDoc = new models.Doc({
      content: '',
-     owner: req.user.id,
-     collaboratorList: [],
+     owner: req.user,
+     collaboratorList: [req.user],
      title: 'untitled',
      password: '',
      createdTime: currentTime,
      lastEditTime: currentTime,
    })
-   newDoc.save(function(err, doc) {
-     if (err) {
-       console.log(err);
-       res.status(500).redirect('/register');
-       return;
-     }
-     console.log(doc);
-     res.json(doc);
-   });
+   newDoc.save()
+      .then(response => res.json(newDoc))
+      .catch(err => res.send(err))
   })
+  //  newDoc.save(function(err, doc) {
+  //    if (err) {
+  //      console.log(err);
+  //      res.status(500).redirect('/register');
+  //      return;
+  //    }
+  //    console.log(doc);
+  //    res.json(doc);
+  //  });
+  // })
 
+  // router.post('/collaborator/', function(req, res) {
+  //   Doc.findById(req.body.doc).exec()
+  //   .then(doc => {
+  //     if (doc.collaboratorList.indexOf(req.body.user) === -1) {
+  //     doc.collaboratorList.push(req.body.user);
+  //     doc.save();
+  //   }
+  //   })
+  //   .then(response => res.json(doc))
+  //   .catch(err => res.send(err))
+  // })
   router.post('/collaborator/', function(req, res) {
     Doc.findById(req.body.doc).exec()
     .then(doc => {
       if (doc.collaboratorList.indexOf(req.body.user) === -1) {
       doc.collaboratorList.push(req.body.user);
       doc.save();
+      User.findById(req.body.user).exec()
+      .then(user => {
+        user.docList.push(req.body.doc);
+        user.save();
+      })
     }
     })
-    .then(response => res.json(doc))
+    .then(response => res.json(response))
     .catch(err => res.send(err))
   })
 
   router.get('/doc', function(req, res) {
     Doc.find().exec()
+    .then(docs => res.json(docs))
+    .catch(err => res.send(err))
+  })
+  // router.get('/doc/own', function(req, res) {
+  //   var retDocs = [];
+  //   User.findById(req.user).exec()
+  //   .then(user => {
+  //     for (var i = 0; i < user.ownList.length; i ++) {
+  //       Doc.findById(user.ownList[i].id).exec()
+  //       .then(doc => retDocs.push(doc))
+  //       .catch(err => console.log(err))
+  //     }
+  //   })
+  //   .then(response => {res.json(retDocs)})
+  //   .catch(err => console.log(err))
+  // })
+  router.get('/doc/own', function(req, res) {
+    Doc.find({collaboratorList:{$in:[req.user]}}).exec()
     .then(docs => res.json(docs))
     .catch(err => res.send(err))
   })

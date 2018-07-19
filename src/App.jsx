@@ -19,7 +19,7 @@ export default class App extends React.Component {
       isLogged: false,
       connecting: true,
       currentDoc: null,
-      collaborators: null,
+      collaborators: [],
     };
     this.redirect = this.redirect.bind(this);
 

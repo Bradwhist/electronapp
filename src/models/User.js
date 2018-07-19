@@ -20,6 +20,20 @@ var UserSchema =  new Schema(
       type: String,
       required: true,
     },
+    ownList: {
+      type: [{
+        type: ObjectId,
+        ref: "users"
+      }],
+      default: [],
+    },
+    docList: {
+      type: [{
+        type: ObjectId,
+        ref: "users"
+      }],
+      default: [],
+    },
   });
 
   module.exports = mongoose.model('User', UserSchema);
