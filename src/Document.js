@@ -1,7 +1,8 @@
 import React from 'react';
-import {Editor, EditorState, RichUtils} from 'draft-js';
+import {Editor, EditorState, RichUtils, contentState, convertToRaw, convertFromRaw} from 'draft-js';
 import RaisedButton from 'material-ui/RaisedButton';
 import ColorPicker, { colorPickerPlugin } from 'draft-js-color-picker';
+import io from 'socket.io-client';
 // import 'react-color-picker/index.css'
 
 import {withBaseIcon} from 'react-icons-kit';
@@ -43,11 +44,37 @@ export default class Document extends React.Component {
     super(props);
     this.state = {
       editorState: EditorState.createEmpty(),
-      // socket: io('http://localhost:8080'),
+      socket: io('http://localhost:8080'),
+      connecting: true,
+      currentDoc: this.props.currentDoc,
     }
-    this.onChange = (editorState) => this.setState({editorState});
+    this.onChange = (editorState) => {
+      this.setState({editorState});
+
+      this.state.socket.emit('edit', {content: convertToRaw(editorState.getCurrentContent()), docId: this.state.currentDoc});
+    };
     this.getEditorState = () => this.state.editorState;
     this.picker = colorPickerPlugin(this.onChange, this.getEditorState)
+
+  }
+
+  componentDidMount () {
+
+   console.log(this.state.editorState);
+    var update = (data) => {this.setState({editorState: EditorState.createWithContent(convertFromRaw(data))})}
+    var socket = this.state.socket;
+    var currentDoc = this.state.currentDoc;
+    // this.state.socket.on('connect', () => this.setState({connecting: null}));
+    // this.state.socket.on('disconnect', () => this.setState({connecting: false}));
+    // this.state.socket.on('msg', function(data){
+    //   console.log('ws msg:', data);
+    //   });
+    socket.on('connect', function() {
+      socket.emit('room', currentDoc);
+    });
+    socket.on('update', function(data) {
+      update(data);
+    })
   }
 
   toggleInlineStyle(e, inlineStyle) {
@@ -132,3 +159,13 @@ export default class Document extends React.Component {
         )
       }
     }
+    // componentDidMount() {
+    //
+    // };
+    //
+    // componentWillunmount() {
+    //   const
+    // }
+    // socket.on
+
+    //socket.emit('openDocument', {docId})

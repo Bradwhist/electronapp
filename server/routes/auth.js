@@ -4,6 +4,8 @@ var express = require('express');
 var router = express.Router();
 var models = require('./../../src/models');
 var passport = require('passport');
+var Doc = models.Doc;
+var User = models.User;
 
 module.exports = function(passport) {
 
@@ -43,21 +45,68 @@ module.exports = function(passport) {
   //   res.json({'user': req.user});
   // });
   router.post('/login',  passport.authenticate('local', { successRedirect: '/auth/currentUser',
-   failureRedirect: '/auth/login', }));
+   failureRedirect: '/', }));
+
+   router.get('/currentUser', function(req, res) {
+     console.log(req.session);
+     if (!req.user) {
+       res.json(false);
+     } else {
+       res.status(200).json({
+         user: req.user,
+
+       });
+     }
+   });
 
    // GET Logout page
+   router.use(function(req, res, next){
+     if (req.user) {
+       return next();
+     } else {
+       res.json({
+         loggedIn: false
+       })
+     }
+   })
 
-  router.get('/currentUser', function(req, res) {
-    console.log(req.session);
-    if (!req.user) {
-      res.json(false);
+
+
+  router.get('/test', function(req, res) {
+    if (req.user) {
+      res.json(req.user);
     } else {
-      res.status(200).json({
-        user: req.user,
-
-      });
+      res.redirect(false);
     }
-  });
+  })
+
+  router.post('/doc', function(req, res) {
+    var currentTime = new Date();
+    var newDoc = new models.Doc({
+     content: '',
+     owner: req.user.id,
+     collaboratorList: [],
+     title: 'untitled',
+     password: '',
+     createdTime: currentTime,
+     lastEditTime: currentTime,
+   })
+   newDoc.save(function(err, doc) {
+     if (err) {
+       console.log(err);
+       res.status(500).redirect('/register');
+       return;
+     }
+     console.log(doc);
+     res.json(doc);
+   });
+  })
+
+  router.get('/doc', function(req, res) {
+    Doc.find().exec()
+    .then(docs => res.json(docs))
+    .catch(err => res.send(err))
+  })
 
   router.get('/logout', function(req, res, next) {
 		req.logout();
@@ -68,6 +117,8 @@ module.exports = function(passport) {
 				res.status(200).send('OK');
 		});
 });
+
+
 
   return router;
 }

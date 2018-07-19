@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+import { session } from 'electron';
 
 export default class Login extends React.Component {
   constructor(props) {
@@ -48,8 +49,9 @@ export default class Login extends React.Component {
       // })
       if (response) {
         this.props.onLogin();
+        this.props.redirect('Profile')
       }
-      this.props.redirect('Profile')
+
 
     })
 

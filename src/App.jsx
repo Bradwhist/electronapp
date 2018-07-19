@@ -8,6 +8,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import { Editor, EditorState, RichUtils } from 'draft-js';
 import io from 'socket.io-client';
 import axios from 'axios';
+import { session } from 'electron';
 
 
 export default class App extends React.Component {
@@ -17,6 +18,8 @@ export default class App extends React.Component {
       currentPage: 'Home',
       socket: io('http://localhost:8080'),
       isLogged: false,
+      connecting: true,
+      currentDoc: null,
     };
     this.redirect = this.redirect.bind(this);
 
@@ -25,17 +28,14 @@ export default class App extends React.Component {
   componentDidMount() {
 
   //  this.state.socket.emit('ping')
-    this.state.socket.on('connect', function(){console.log('ws connect')});
-    this.state.socket.on('disconnect', function(){console.log('ws disconnect')});
-    this.state.socket.on('msg', function(data){
-      console.log('ws msg:', data);
-      this.state.socket.emit('cmd', {foo:123})
-    });
+    this.state.socket.on('connect', () => this.setState({connecting: null}));
+    this.state.socket.on('disconnect', () => this.setState({connecting: false}));
+    // this.state.socket.on('msg', function(data){
+    //   console.log('ws msg:', data);
+      //this.state.socket.emit('cmd', {foo:123})
 
 
   }
-
-
   redirect(page) {
     this.setState({ currentPage: page });
   }
@@ -55,6 +55,10 @@ export default class App extends React.Component {
     // }
     // )
     // .catch(err => console.log(err))
+
+//     session.defaultSession.cookies.get({}, function(error, cookies) {
+//   console.log(error, cookies)
+// })
     this.setState({
       isLogged: true,
     })
@@ -63,6 +67,12 @@ export default class App extends React.Component {
   onLogout() {
     this.setState({
       isLogged: false,
+    })
+  }
+  onNewDoc(docId) {
+    this.setState({
+      currentDoc: docId,
+      currentPage: 'Document',
     })
   }
 
@@ -94,8 +104,8 @@ export default class App extends React.Component {
       { this.state.currentPage === 'Login' ? <Login redirect={this.redirect} onLogin={() => this.onLogin()} /> : null }
       { this.state.currentPage === 'Register' ? <Register redirect={this.redirect} /> : null }
       { this.state.currentPage === 'Newdoc' ? <Newdoc redirect={this.redirect} /> : null }
-      { this.state.currentPage === 'Profile' ? <Profile redirect={this.redirect} onLogout={() => this.onLogout()} /> : null }
-      { this.state.currentPage === 'Document' ? <Document redirect={this.redirect} /> : null }
+      { this.state.currentPage === 'Profile' ? <Profile redirect={this.redirect} onLogout={() => this.onLogout()} onNewDoc={(docId) => this.onNewDoc(docId)} /> : null }
+      { this.state.currentPage === 'Document' ? <Document currentDoc={this.state.currentDoc} redirect={this.redirect} /> : null }
 
       </div>
     );

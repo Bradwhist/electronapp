@@ -144,11 +144,27 @@ app.use('/api', apiRoutes);
 
 server.listen(8080);
 io.on('connection', function(socket) {
+
+
+
   console.log('connected to socket')
   socket.emit('connect', {hello: 'world' });
   socket.on('cmd', function (data) {
     console.log(data);
   });
+  socket.on('room', function(room) {
+    socket.join(room);
+  });
+  socket.on('edit', function(data) {
+    //socket.emit('update', 'meow');
+    Models.Doc.findById(data.docId).exec()
+    .then(doc => {
+      doc.content = data.content;
+      doc.save();
+      socket.broadcast.emit('update', data.content);
+    })
+    .catch(err => console.log(err));
+  })
 });
 
 app.set('port', (process.env.Port || 3000));
