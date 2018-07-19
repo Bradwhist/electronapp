@@ -1,5 +1,4 @@
 var passport = require('passport');
-var bcrypt = require('bcrypt');
 var LocalStrategy = require('passport-local').Strategy;
 
 passport.use(new LocalStrategy(function(user, pass, cb){

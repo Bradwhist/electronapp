@@ -28,3 +28,12 @@ h2 {
 .align-center {
   text-align: center;
 }
+
+.toolbar {
+  border-bottom: 2px solid gray;
+  padding: 10px
+}
+
+.toolbar > * {
+  margin-right: 5px;
+}
