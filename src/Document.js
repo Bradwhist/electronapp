@@ -1,5 +1,5 @@
 import React from 'react';
-import {Editor, EditorState, RichUtils} from 'draft-js';
+import {Editor, EditorState, RichUtils, contentState, convertToRaw, convertFromRaw} from 'draft-js';
 import RaisedButton from 'material-ui/RaisedButton';
 // import ColorPicker, { colorPickerPlugin } from 'draft-js-color-picker';
 // import createStyles from 'draft-js-custom-styles'
@@ -9,12 +9,23 @@ import { CirclePicker } from 'react-color'
 import Popover from 'material-ui/Popover';
 import * as colors from 'material-ui/styles/colors'
 import FontIcon from 'material-ui/FontIcon';
+import ColorPicker, { colorPickerPlugin } from 'draft-js-color-picker';
+import io from 'socket.io-client';
 
 const customStyleMap = {
   remoteCursor: {
     borderLeft: 'solid 3px red'
   }
 }
+
+
+import {withBaseIcon} from 'react-icons-kit';
+import {listNumbered} from 'react-icons-kit/icomoon';
+import {list2} from 'react-icons-kit/icomoon';
+
+const SideIconContainer = withBaseIcon({size:20, style: {
+  top:'50%', height:'10em', marginTop:'-5em', width:'100%'
+}})
 
 const presetColors = [
   '#ff00aa',
@@ -67,12 +78,39 @@ export default class Document extends React.Component {
       remoteCursor: {
         borderLeft: 'solid 3px red'
       }
-    }
+    },
+    socket: io('http://localhost:8080'),
+    connecting: true,
+    currentDoc: this.props.currentDoc,
       // socket: io('http://localhost:8080'),
     }
-    this.onChange = (editorState) => this.setState({editorState});
+    this.onChange = (editorState) => {
+      this.setState({editorState});
+
+      this.state.socket.emit('edit', {content: convertToRaw(editorState.getCurrentContent()), docId: this.state.currentDoc});
+    };
     this.getEditorState = () => this.state.editorState;
     // this.picker = colorPickerPlugin(this.onChange, this.getEditorState)
+
+  }
+
+  componentDidMount () {
+
+   console.log(this.state.editorState);
+    var update = (data) => {this.setState({editorState: EditorState.createWithContent(convertFromRaw(data))})}
+    var socket = this.state.socket;
+    var currentDoc = this.state.currentDoc;
+    // this.state.socket.on('connect', () => this.setState({connecting: null}));
+    // this.state.socket.on('disconnect', () => this.setState({connecting: false}));
+    // this.state.socket.on('msg', function(data){
+    //   console.log('ws msg:', data);
+    //   });
+    socket.on('connect', function() {
+      socket.emit('room', currentDoc);
+    });
+    socket.on('update', function(data) {
+      update(data);
+    })
   }
 
   toggleInlineStyle(e, inlineStyle) {
@@ -232,8 +270,12 @@ onSetStyle = (name, val) => (e) => {
             <button onMouseDown={(e) => this.toggleInlineStyle(e, 'UPPERCASE')}>ABC</button>
             <button onMouseDown={(e) => this.toggleInlineStyle(e, 'LOWERCASE')}>xyz</button>
 
-            <button onMouseDown={(e) => this.toggleBlockType(e, 'unordered-list-item')}>Unordered List</button>
-            <button onMouseDown={(e) => this.toggleBlockType(e, 'ordered-list-item')}>Ordered List</button>
+            <button onMouseDown={(e) => this.toggleBlockType(e, 'unordered-list-item')}>
+              <SideIconContainer icon={list2}/>
+            </button>
+            <button onMouseDown={(e) => this.toggleBlockType(e, 'ordered-list-item')}>
+              <SideIconContainer icon={listNumbered}/>
+            </button>
             <button onMouseDown={(e) => this.alignRight(e)}>Align Right</button>
             <button onMouseDown={(e) => this.alignLeft(e)}>Align Left</button>
             <button onMouseDown={(e) => this.alignCenter(e)}>Center</button>
@@ -268,3 +310,13 @@ onSetStyle = (name, val) => (e) => {
         )
       }
     }
+    // componentDidMount() {
+    //
+    // };
+    //
+    // componentWillunmount() {
+    //   const
+    // }
+    // socket.on
+
+    //socket.emit('openDocument', {docId})
