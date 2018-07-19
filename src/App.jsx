@@ -19,6 +19,7 @@ export default class App extends React.Component {
       isLogged: false,
       connecting: true,
       currentDoc: null,
+      collaborators: null,
     };
     this.redirect = this.redirect.bind(this);
 
@@ -68,10 +69,11 @@ export default class App extends React.Component {
       isLogged: false,
     })
   }
-  onNewDoc(docId) {
+  onNewDoc(doc) {
     this.setState({
-      currentDoc: docId,
+      currentDoc: doc._id,
       currentPage: 'Document',
+      collaborators: doc.collaboratorList,
     })
   }
 
@@ -104,7 +106,7 @@ export default class App extends React.Component {
       { this.state.currentPage === 'Register' ? <Register redirect={this.redirect} /> : null }
       { this.state.currentPage === 'Newdoc' ? <Newdoc redirect={this.redirect} /> : null }
       { this.state.currentPage === 'Profile' ? <Profile redirect={this.redirect} onLogout={() => this.onLogout()} onNewDoc={(docId) => this.onNewDoc(docId)} /> : null }
-      { this.state.currentPage === 'Document' ? <Document currentDoc={this.state.currentDoc} redirect={this.redirect} /> : null }
+      { this.state.currentPage === 'Document' ? <Document collaborators={this.state.collaborators} currentDoc={this.state.currentDoc} redirect={this.redirect} /> : null }
 
       </div>
     );

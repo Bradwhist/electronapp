@@ -69,7 +69,7 @@ export default class Profile extends React.Component {
         {this.state.docs.map(doc => (
           <li>
             <p>{doc.title}---{doc.owner}</p>
-            <button onClick={() => this.props.onNewDoc(doc._id)}>Edit</button>
+            <button onClick={() => this.props.onNewDoc(doc)}>Edit</button>
           </li>
         ))}
         </ul>

@@ -5,12 +5,14 @@ import RaisedButton from 'material-ui/RaisedButton';
 // import createStyles from 'draft-js-custom-styles'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import AppBar from 'material-ui/AppBar';
-import { CirclePicker } from 'react-color'
+import { CirclePicker } from 'react-color';
 import Popover from 'material-ui/Popover';
 import * as colors from 'material-ui/styles/colors'
 import FontIcon from 'material-ui/FontIcon';
 import ColorPicker, { colorPickerPlugin } from 'draft-js-color-picker';
 import io from 'socket.io-client';
+import axios from 'axios';
+import Modal from 'react-modal';
 
 const customStyleMap = {
   remoteCursor: {
@@ -67,10 +69,22 @@ const styleMap = {
   }
 }
 
+const modalStyles = {
+  content : {
+    top                   : '50%',
+    left                  : '50%',
+    right                 : 'auto',
+    bottom                : 'auto',
+    marginRight           : '-50%',
+    transform             : 'translate(-50%, -50%)'
+  }
+};
+
 // const {
 //   styles,
 //   customStyleFn,
 // } = createStyles(['font-size', 'color'], customStyleMap)
+//Modal.setAppElement('root');
 
 export default class Document extends React.Component {
   constructor(props) {
@@ -92,23 +106,87 @@ export default class Document extends React.Component {
     socket: io('http://localhost:8080'),
     connecting: true,
     currentDoc: this.props.currentDoc,
+    collaborators: this.props.collaborators,
+    modalIsOpen: false,
+    users: [],
       // socket: io('http://localhost:8080'),
     }
-    this.onChange = (editorState) => {
-      this.setState({editorState});
 
-      this.state.socket.emit('edit', {content: convertToRaw(editorState.getCurrentContent()), docId: this.state.currentDoc});
-    };
     this.getEditorState = () => this.state.editorState;
 
      this.picker = colorPickerPlugin(this.onChange, this.getEditorState)
+     this.openModal = this.openModal.bind(this);
+     this.afterOpenModal = this.afterOpenModal.bind(this);
+     this.closeModal = this.closeModal.bind(this);
 
   }
 
-  componentDidMount () {
+  //load all users
+  updateUsers = () => {
+  axios({
+    method: 'get',
+    url: 'http://localhost:3000/auth/user',
 
+  })
+  .then(response => {
+    this.setState({users: response.data})
+  })
+  .catch(err => console.log(err))
+
+}
+
+
+  ///////////////////////////////////////////////////////////////////
+   //Modal Helper Functions
+  /////////////////////////////////////////////////////////////////
+
+  openModal() {
+  this.setState({modalIsOpen: true});
+}
+
+afterOpenModal() {
+  // references are now sync'd and can be accessed.
+  this.subtitle.style.color = '#f00';
+}
+
+closeModal() {
+  this.setState({modalIsOpen: false});
+}
+
+addCollab = (user) => {
+  axios({
+    method: 'post',
+    url: 'http://localhost:3000/auth/collaborator',
+    data: {
+      user: user,
+      doc: this.state.currentDoc,
+    }
+  })
+.then(response => {
+  console.log(response);
+})
+.catch(err => console.log(err))
+
+}
+////////////////////////////
+//End Modal Helper Functions
+////////////////////////////
+
+  update = (data) => {
+    this.setState({editorState:EditorState.createWithContent(convertFromRaw(data))})
+  }
+
+  onChange = (editorState) => {
+    this.setState({editorState});
+
+    this.state.socket.emit('edit', {content: convertToRaw(editorState.getCurrentContent()), docId: this.state.currentDoc});
+  };
+
+  componentDidMount () {
+    //load users into Strate
+    this.updateUsers();
    console.log(this.state.editorState);
-    var update = (data) => {this.setState({editorState: EditorState.createWithContent(convertFromRaw(data))})}
+    //var update = (data) => {this.setState({editorState: EditorState.createWithContent(convertFromRaw(data))})}
     var socket = this.state.socket;
     var currentDoc = this.state.currentDoc;
     // this.state.socket.on('connect', () => this.setState({connecting: null}));
@@ -116,14 +194,37 @@ export default class Document extends React.Component {
     // this.state.socket.on('msg', function(data){
     //   console.log('ws msg:', data);
     //   });
+    var currentContent = null;
+    var _this = this;
+    axios({
+      method: 'get',
+      url: 'http://localhost:3000/auth/doc/' + this.state.currentDoc,
+    })
+    .then(response => {
+      console.log(response.data.content);
+      _this.update(JSON.parse(response.data.content));
+    })
+    .catch(err => console.log(err))
+
+
     socket.on('connect', function() {
       socket.emit('room', currentDoc);
     });
     socket.on('update', function(data) {
-      update(data);
+      _this.update(data);
     })
 
   }
+
+//   componentWillUnmount() {
+//
+//   // clean up our listeners
+//   this.state.socket.off('syncDocument', this.remoteStateChange)
+//   this.state.socket.emit('closeDocument', {docId: options.docId}, (res) => {
+//     if(res.err) return alert('Opps Error')
+//     this.setState({ docs: res.docs })
+//   })
+// }
 
   toggleInlineStyle(e, inlineStyle) {
     e.preventDefault();
@@ -273,9 +374,13 @@ onSetStyle = (name, val) => (e) => {
     )
   }
 
+
+
   render() {
+    console.log('this.state.users', this.state.users);
+    console.log('this.state.collaborators', this.state.collaborators);
     return(
-      <div>
+      <div id="root">
         <AppBar title="Document Editor"/>
         <div className="editor">
           <div className="toolbar">
@@ -336,11 +441,43 @@ onSetStyle = (name, val) => (e) => {
             blockStyleFn={this.myBlockStyleFn}
           />
       </div>
+      <button onClick={this.openModal}>Add Collaborators</button>
+        <Modal
+          isOpen={this.state.modalIsOpen}
+          onAfterOpen={this.afterOpenModal}
+          onRequestClose={this.closeModal}
+          style={modalStyles}
+          contentLabel="Example Modal"
+          >
+
+          <h2 ref={subtitle => this.subtitle = subtitle}>Add Conspirators</h2>
+          <button onClick={this.closeModal}>close</button>
+          <div>Plot Shenanigans</div>
+            <h4>Potential Plotters</h4>
+            <ul>
+
+            {this.state.users.filter((user) => { return this.state.collaborators.indexOf(user._id) === -1}).map(user => (
+              <li>
+                <p>{user.user}</p>
+                <button onClick={() => this.addCollab(user._id)}>Add Comrade</button>
+              </li>
+            ))}
+            </ul>
+            <form>
+              <input />
+              <button>tab navigation</button>
+              <button>stays</button>
+              <button>inside</button>
+              <button>the modal</button>
+            </form>
+          </Modal>
+
           <button onClick={() => this.props.redirect("Home")}>Home James</button>
     </div>
         )
       }
     }
+    //.filter(user => {this.state.collaborators.indexOf(user._id) === -1})
     // componentDidMount() {
     //
     // };

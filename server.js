@@ -159,9 +159,9 @@ io.on('connection', function(socket) {
     //socket.emit('update', 'meow');
     Models.Doc.findById(data.docId).exec()
     .then(doc => {
-      doc.content = data.content;
+      doc.content = JSON.stringify(data.content);
       doc.save();
-      socket.broadcast.emit('update', data.content);
+      socket.broadcast.to(data.docId).emit('update', data.content);
     })
     .catch(err => console.log(err));
   })

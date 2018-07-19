@@ -102,9 +102,38 @@ module.exports = function(passport) {
    });
   })
 
+  router.post('/collaborator/', function(req, res) {
+    Doc.findById(req.body.doc).exec()
+    .then(doc => {
+      if (doc.collaboratorList.indexOf(req.body.user) === -1) {
+      doc.collaboratorList.push(req.body.user);
+      doc.save();
+    }
+    })
+    .then(response => res.json(doc))
+    .catch(err => res.send(err))
+  })
+
   router.get('/doc', function(req, res) {
     Doc.find().exec()
     .then(docs => res.json(docs))
+    .catch(err => res.send(err))
+  })
+  router.get('/user/', function(req, res) {
+    User.find().exec()
+    .then(users => res.json(users))
+    .catch(err => res.send(err))
+  })
+  //filtered users
+  router.get('/user/:user', function(req, res) {
+    User.find({user: req.params.user}).exec()
+    .then(users => res.json(users))
+    .catch(err => res.send(err))
+  })
+
+  router.get('/doc/:docId', function(req, res) {
+    Doc.findById(req.params.docId).exec()
+    .then(doc => res.json(doc))
     .catch(err => res.send(err))
   })
 
