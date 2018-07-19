@@ -10,7 +10,6 @@ import io from 'socket.io-client';
 import axios from 'axios';
 import { session } from 'electron';
 
-
 export default class App extends React.Component {
   constructor(props) {
     super(props);

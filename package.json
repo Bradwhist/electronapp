@@ -76,6 +76,7 @@
     "react": "^16.4.1",
     "react-color": "^2.14.1",
     "react-dom": "^16.4.1",
+    "react-dropdown": "^1.5.0",
     "react-hot-loader": "^4.3.3",
     "react-icons-kit": "^1.1.6",
     "server": "^1.0.18",
@@ -98,6 +99,6 @@
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-jsx-a11y": "^5.1.1",
     "eslint-plugin-react": "^7.10.0",
-    "nodemon": "^1.18.2"
+    "nodemon": "^1.18.3"
   }
 }
