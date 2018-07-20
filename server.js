@@ -144,9 +144,6 @@ app.use('/api', apiRoutes);
 
 server.listen(8080);
 io.on('connection', function(socket) {
-
-
-
   console.log('connected to socket')
   socket.emit('connect', {hello: 'world' });
   socket.on('cmd', function (data) {
@@ -161,7 +158,7 @@ io.on('connection', function(socket) {
     .then(doc => {
       doc.content = JSON.stringify(data.content);
       doc.save();
-      socket.broadcast.to(data.docId).emit('update', data.content);
+      socket.broadcast.to(data.docId).emit('update', data);
     })
     .catch(err => console.log(err));
   })

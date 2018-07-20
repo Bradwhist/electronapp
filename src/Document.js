@@ -1,5 +1,5 @@
 import React from 'react';
-import {Editor, EditorState, RichUtils, contentState, convertToRaw, convertFromRaw} from 'draft-js';
+import {CompositeDecorator, Editor, EditorState, RichUtils, contentState, convertToRaw, convertFromRaw} from 'draft-js';
 import RaisedButton from 'material-ui/RaisedButton';
 // import ColorPicker, { colorPickerPlugin } from 'draft-js-color-picker';
 // import createStyles from 'draft-js-custom-styles'
@@ -19,7 +19,6 @@ const customStyleMap = {
     borderLeft: 'solid 3px red'
   }
 }
-
 
 import {withBaseIcon} from 'react-icons-kit';
 import {listNumbered, list2, paragraphLeft, paragraphCenter, paragraphRight,
@@ -89,8 +88,35 @@ const modalStyles = {
 export default class Document extends React.Component {
   constructor(props) {
     super(props);
+    const compositeDecorator = new CompositeDecorator([
+      {
+        strategy: handleStrategy.bind(this),
+        component: (props) => {
+          console.log(props.children);
+          return (
+            <span style={{backgroundColor: 'red'}}>{props.children}</span>
+          );
+        }
+      },
+      {
+        strategy: colorStrategy.bind(this),
+        component: (props) => {
+          return (
+            <span style={{backgroundColor: 'blue'}}>{props.children}</span>
+          )
+        }
+      }
+    ])
+    this.compositeDecorator = compositeDecorator;
+
+    // const CursorComponent = (props) => {
+    //   return (
+    //     <span style={{color: props.decoratedText}}>XXXXXXXXXXXXXX</span>
+    //   );
+    // };
+
     this.state = {
-      editorState: EditorState.createEmpty(),
+      editorState: EditorState.createEmpty(compositeDecorator),
       currentFontSize: 12,
       inlineStyles: {
         'UPPERCASE': {
@@ -109,16 +135,71 @@ export default class Document extends React.Component {
     collaborators: this.props.collaborators,
     modalIsOpen: false,
     users: [],
+    currentId: null,
+    collabCursors: {},
+    search: 'test',
+    searchOpen: false,
+
       // socket: io('http://localhost:8080'),
     }
 
+
+    function handleStrategy(contentBlock, callback, contentState) {
+      console.log('in handlestrategy');
+      findWithLocation(this.state.collabCursors, contentBlock, callback);
+    }
+    function findWithLocation(collabCursors, contentBlock, callback) {
+      console.log('in find with location');
+      for (var key in collabCursors) {
+        if (contentBlock.getKey() == collabCursors[key].anchorKey) {
+          let start = collabCursors[key].anchorOffset
+          let end = collabCursors[key].focusOffset
+          callback(start, end);
+        }
+      };
+    }
+
+    function colorStrategy(contentBlock, callback, contentState) {
+      findWithSearch(this.state.search, contentBlock, callback);
+    }
+
+    function findWithSearch(search, contentBlock, callback) {
+      var text = contentBlock.getText();
+      var searchMax = text.length - search.length + 1;
+      var check = true;
+      for (var i = 0; i < searchMax; i++ ) {
+        check = true;
+        for (var j = 0; j < search.length; j ++) {
+          if (text[i + j] !== search[j]) {
+            check = false;
+          }
+        }
+        if (check) {
+          callback(i, i + j);
+        }
+      }
+    }
+
     this.getEditorState = () => this.state.editorState;
+
 
      this.picker = colorPickerPlugin(this.onChange, this.getEditorState)
      this.openModal = this.openModal.bind(this);
      this.afterOpenModal = this.afterOpenModal.bind(this);
      this.closeModal = this.closeModal.bind(this);
 
+  }
+  updateUser = () => {
+
+    axios({
+      method: 'get',
+      url: 'http://localhost:3000/auth/currentUser'
+    })
+    .then(response => {
+
+      this.setState({currentId: response.data.user._id});
+
+    })
   }
 
   //load all users
@@ -173,18 +254,30 @@ addCollab = (user) => {
 ////////////////////////////
 
   update = (data) => {
-    this.setState({editorState:EditorState.createWithContent(convertFromRaw(data))})
+    console.log(data);
+    this.setState({editorState:EditorState.createWithContent(convertFromRaw(data), this.compositeDecorator)})
+
   }
 
   onChange = (editorState) => {
+    // var position = window.getSelection().getRangeAt(0).getBoundingClientRect()
+    // console.log(position);
+    console.log('changing...');
     this.setState({editorState});
-
-    this.state.socket.emit('edit', {content: convertToRaw(editorState.getCurrentContent()), docId: this.state.currentDoc});
+    var sendCursor = this.state.editorState.getSelection();
+    this.state.socket.emit('edit', {content: convertToRaw(editorState.getCurrentContent()), docId: this.state.currentDoc, cursor: sendCursor, user: this.state.currentId});
   };
+  // onChange = async (editorState) => {
+  //   await this.setState({editorState});
+  //   await this.setState({markedEditorState: this.state.editorState})
+  //   var sendCursor = this.state.editorState.getSelection();
+  //   this.state.socket.emit('edit', {content: convertToRaw(editorState.getCurrentContent()), docId: this.state.currentDoc, cursor: sendCursor, user: this.state.currentId});
+  // };
 
-  componentDidMount () {
+  componentWillMount () {
     //load users into Strate
     this.updateUsers();
+    this.updateUser();
    console.log(this.state.editorState);
     //var update = (data) => {this.setState({editorState: EditorState.createWithContent(convertFromRaw(data))})}
     var socket = this.state.socket;
@@ -211,7 +304,17 @@ addCollab = (user) => {
       socket.emit('room', currentDoc);
     });
     socket.on('update', function(data) {
-      _this.update(data);
+      console.log(data);
+      var cursor = _this.state.editorState.getSelection();
+
+      _this.update(data.content);
+      var currentState = _this.state.editorState;
+      currentState = EditorState.forceSelection(currentState, cursor);
+      _this.setState({editorState: currentState});
+      var currentCursors = _this.state.collabCursors;
+
+      currentCursors[data.user] = data.cursor;
+      _this.setState({collabDocs: currentCursors});
     })
 
   }
@@ -374,13 +477,63 @@ onSetStyle = (name, val) => (e) => {
     )
   }
 
+  ///////////////////////////////////////////////
+  //Search Helper Functions
+  toggleSearch() {
+    this.setState({searchOpen: !this.state.searchOpen})
+  }
+  searchChange(e) {
+    this.setState({search: e.target.value})
+  }
+  //////////////////////////////////////////////
+
 
 
   render() {
-    console.log('this.state.users', this.state.users);
-    console.log('this.state.collaborators', this.state.collaborators);
+    // console.log('this.state.users', this.state.users);
+    // console.log('this.state.collaborators', this.state.collaborators);
+     // console.log(this.state.collabCursors);
+     var regex = this.state.collabCursors;
+     var renderCursors = this.state.collabCursors;
+     var cursorArray = Object.keys(renderCursors).map(function(key) {
+        return <li>{renderCursors[key].anchorKey}</li>
+       console.log(key);
+       // console.log(renderCursors[key].getRangeAt(0).getBoundingClientRect())
+
+     })
+
+    // const cursorStyle = {
+    //   position: 'absolute',
+    //   top: top(),
+    //   left: left(),
+    //
+    // }
+    /////////////////////decorators
+
+
+
+
+
+
+
+
+console.log(this.compositeDecorator)
+
     return(
       <div id="root">
+        <ul>
+          {cursorArray}
+        </ul>
+        <button onClick={() => this.toggleSearch()}>Search Text</button>
+        {this.state.searchOpen ?
+          <div>
+          <input type="text" name="search" value={this.state.search}
+          onChange={(e) => this.searchChange(e)}/>
+          <button onClick={() => this.toggleSearch()}>Login</button>
+          </div>
+          :
+          null
+        }
         <AppBar title="Document Editor"/>
         <div className="editor">
           <div className="toolbar">
@@ -477,6 +630,8 @@ onSetStyle = (name, val) => (e) => {
         )
       }
     }
+
+
     //.filter(user => {this.state.collaborators.indexOf(user._id) === -1})
     // componentDidMount() {
     //

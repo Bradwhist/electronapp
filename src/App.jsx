@@ -99,7 +99,6 @@ export default class App extends React.Component {
       <button onClick={() => this.redirect('Document')}>Document</button>
       </div>
       }
-
       </div>: null}
 
       { this.state.currentPage === 'Login' ? <Login redirect={this.redirect} onLogin={() => this.onLogin()} /> : null }
