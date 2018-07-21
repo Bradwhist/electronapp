@@ -110,6 +110,7 @@ module.exports = function(passport) {
     var newDoc = new models.Doc({
      content: '',
      owner: req.user,
+     ownerName: req.user.user,
      collaboratorList: [req.user],
      title: 'untitled',
      password: '',
@@ -201,6 +202,11 @@ module.exports = function(passport) {
   router.get('/user/:user', function(req, res) {
     User.find({user: req.params.user}).exec()
     .then(users => res.json(users))
+    .catch(err => res.send(err))
+  })
+  router.get('/user/id/:userId', function(req, res) {
+    User.findById(req.params.userId).exec()
+    .then(user => res.json(user.user))
     .catch(err => res.send(err))
   })
 

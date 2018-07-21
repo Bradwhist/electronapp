@@ -67,6 +67,8 @@ export default class Profile extends React.Component {
 
 }
 
+
+
 testDocs = () => {
   axios({
     method: 'get',
@@ -109,8 +111,23 @@ testDocs = () => {
     .then(response => this.props.onNewDoc(response.data))
     // .then(response => response.json())
     // .then(response => )
-
   }
+    // getUserName = (userId) => {
+    //
+    // var ret;
+    // axios({
+    //   method: 'get',
+    //   url: 'http://localhost:3000/auth/user/id/' + userId,
+    // })
+    // .then(response => {
+    //   ret = {
+    //     key: response
+    //   }
+    // })
+    // .catch(err => console.log(err))
+    // console.log(ret.key);
+    // return ret.key;
+    // }
   render() {
 
 
@@ -124,7 +141,7 @@ testDocs = () => {
         <ul>
         {this.state.ownDocs.map(doc => (
           <li>
-            <p>{doc.title}---{doc.owner}</p>
+            <p>{doc.title}---{doc.ownerName}</p>
             <button onClick={() => this.props.onNewDoc(doc)}>Edit</button>
           </li>
         ))}
@@ -133,7 +150,7 @@ testDocs = () => {
         <ul>
         {this.state.collabDocs.map(doc => (
           <li>
-            <p>{doc.title}---{doc.owner}</p>
+            <p>{doc.title}---{doc.ownerName}</p>
             <button onClick={() => this.props.onNewDoc(doc)}>Edit</button>
           </li>
         ))}

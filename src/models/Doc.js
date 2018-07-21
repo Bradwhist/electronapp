@@ -14,6 +14,9 @@ var DocSchema = new Schema({
     required: true,
     ref: "users"
   },
+  ownerName: {
+    type: String
+  },
   collaboratorList: {
     type: [{
       type: ObjectId,
