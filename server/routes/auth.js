@@ -164,6 +164,16 @@ module.exports = function(passport) {
     .then(docs => res.json(docs))
     .catch(err => res.send(err))
   })
+
+  router.post('/save', function(req, res) {
+    Doc.findById(req.body.doc).exec()
+    .then(doc => {
+      doc.history.push({content: req.body.content, time: new Date()});
+      doc.save();
+    })
+    .then(response => res.json(doc))
+    .catch(err => res.send(err))
+  })
   // router.get('/doc/own', function(req, res) {
   //   var retDocs = [];
   //   User.findById(req.user).exec()

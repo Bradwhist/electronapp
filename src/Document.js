@@ -137,8 +137,10 @@ export default class Document extends React.Component {
     users: [],
     currentId: null,
     collabCursors: {},
-    search: 'test',
+    search: '',
     searchOpen: false,
+    modalContent: 'collaborators',
+    history: [],
 
       // socket: io('http://localhost:8080'),
     }
@@ -234,6 +236,16 @@ closeModal() {
   this.setState({modalIsOpen: false});
 }
 
+openCollab() {
+  this.setState({modalContent: true});
+  this.openModal();
+}
+
+openHistory() {
+  this.setState({modalContent: false});
+  this.openModal();
+}
+
 addCollab = (user) => {
   axios({
     method: 'post',
@@ -289,6 +301,8 @@ addCollab = (user) => {
     //   });
     var currentContent = null;
     var _this = this;
+
+    // READ DOC IN
     axios({
       method: 'get',
       url: 'http://localhost:3000/auth/doc/' + this.state.currentDoc,
@@ -296,9 +310,10 @@ addCollab = (user) => {
     .then(response => {
       console.log(response.data.content);
       _this.update(JSON.parse(response.data.content));
+      _this.setState({history: response.data.history})
     })
     .catch(err => console.log(err))
-
+    //
 
     socket.on('connect', function() {
       socket.emit('room', currentDoc);
@@ -482,11 +497,47 @@ onSetStyle = (name, val) => (e) => {
   toggleSearch() {
     this.setState({searchOpen: !this.state.searchOpen})
   }
-  searchChange(e) {
+  async searchChange(e) {
+    if (e.target.value === 'RG=AG') {
+      this.setState({search: "Rodrigo's girlfriend === Ariana Grande"})
+    } else {
     this.setState({search: e.target.value})
   }
-  //////////////////////////////////////////////
+    var a = await this.state.search;
+    var editorState = this.state.editorState;
+    var content = editorState.getCurrentContent();
+    var newEditorState = EditorState.createWithContent(content, this.createDecorator());
+    this.setState({editorState: newEditorState});
+  }
 
+  createDecorator() {
+    return this.compositeDecorator;
+  }
+  //////////////////////////////////////////////
+  saveDoc = () => {
+    axios({
+      method: 'post',
+      url: 'http://localhost:3000/auth/save',
+      data: {
+        doc: this.state.currentDoc,
+        //content: this.state.editorState.getCurrentContent(),
+        content: JSON.stringify(convertToRaw(this.state.editorState.getCurrentContent()))
+      }
+    })
+  .then(response => {
+    console.log(response);
+  })
+  .catch(err => console.log(err))
+
+  }
+
+  revert = (content) => {
+    //this.update(content);
+    console.log(content);
+    this.update(JSON.parse(content));
+    //this.setState({editorState: EditorState.createWithContent(content, this.compositeDecorator)})
+    //this.setState({editorState: content})
+  }
 
 
   render() {
@@ -524,15 +575,15 @@ console.log(this.compositeDecorator)
         <ul>
           {cursorArray}
         </ul>
-        <button onClick={() => this.toggleSearch()}>Search Text</button>
+
         {this.state.searchOpen ?
           <div>
-          <input type="text" name="search" value={this.state.search}
-          onChange={(e) => this.searchChange(e)}/>
-          <button onClick={() => this.toggleSearch()}>Login</button>
+            <button onClick={() => this.toggleSearch()}>Close Search</button>
+            <input type="text" name="search" value={this.state.search}
+            onChange={(e) => this.searchChange(e)}/>
           </div>
           :
-          null
+          <button onClick={() => this.toggleSearch()}>Search Text</button>
         }
         <AppBar title="Document Editor"/>
         <div className="editor">
@@ -594,7 +645,8 @@ console.log(this.compositeDecorator)
             blockStyleFn={this.myBlockStyleFn}
           />
       </div>
-      <button onClick={this.openModal}>Add Collaborators</button>
+      <button onClick={() => this.openCollab()}>Add Collaborators</button>
+        {this.state.modalContent ?
         <Modal
           isOpen={this.state.modalIsOpen}
           onAfterOpen={this.afterOpenModal}
@@ -616,15 +668,35 @@ console.log(this.compositeDecorator)
               </li>
             ))}
             </ul>
-            <form>
-              <input />
-              <button>tab navigation</button>
-              <button>stays</button>
-              <button>inside</button>
-              <button>the modal</button>
-            </form>
-          </Modal>
 
+          </Modal>
+          :
+          <Modal
+            isOpen={this.state.modalIsOpen}
+            onAfterOpen={this.afterOpenModal}
+            onRequestClose={this.closeModal}
+            style={modalStyles}
+            contentLabel="Example Modal"
+            >
+
+            <h2 ref={subtitle => this.subtitle = subtitle}>Doc Version History</h2>
+            <button onClick={this.closeModal}>close</button>
+            <div>Plot Shenanigans</div>
+              <h4>Potential Plotters</h4>
+              <ul>
+
+              {this.state.history.map(version => (
+                <li>
+                  <p>{version.time}</p>
+                  <button onClick={() => this.revert(version.content)}>Revert to</button>
+                </li>
+              ))}
+              </ul>
+
+            </Modal>
+        }
+          <button onClick={() => this.saveDoc()}>Save Document</button>
+          <button onClick={() => this.openHistory()}>View Version History</button>
           <button onClick={() => this.props.redirect("Home")}>Home James</button>
     </div>
         )

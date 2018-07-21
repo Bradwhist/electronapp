@@ -33,6 +33,10 @@ var DocSchema = new Schema({
   },
   lastEditTime: {
     type: Date
+  },
+  history: {
+    type: Array,
+    default: []
   }
 });
 
