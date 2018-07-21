@@ -112,8 +112,8 @@ module.exports = function(passport) {
      owner: req.user,
      ownerName: req.user.user,
      collaboratorList: [req.user],
-     title: 'untitled',
-     password: '',
+     title: req.body.title,
+     password: req.body.pass,
      createdTime: currentTime,
      lastEditTime: currentTime,
    })
@@ -163,6 +163,25 @@ module.exports = function(passport) {
   router.get('/doc', function(req, res) {
     Doc.find().exec()
     .then(docs => res.json(docs))
+    .catch(err => res.send(err))
+  })
+
+  // router.get('/doc/search/:searchStr', function(req, res) {
+  //   Doc.find({title: req.params.searchStr}).exec()
+  //   .then(docs => res.json(docs))
+  //   .catch(err => res.send(err))
+  // })
+  router.get('/doc/search/:searchStr', function(req, res) {
+    Doc.find().exec()
+    .then(docs => {
+      var filterFunc = (ele) => {
+        return ele.title.toLowerCase().search(req.params.searchStr.toLowerCase()) !== -1;
+      }
+      docs = docs.filter(filterFunc);
+      docs = docs.map(ele => {return {id: ele.id, title: ele.title, ownerName: ele.ownerName, createdTime: ele.createdTime, collaboratorList: ele.collaboratorList}});
+      res.json(docs);
+    })
+
     .catch(err => res.send(err))
   })
 

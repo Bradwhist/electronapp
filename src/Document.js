@@ -146,6 +146,8 @@ export default class Document extends React.Component {
     }
 
 
+
+
     function handleStrategy(contentBlock, callback, contentState) {
       console.log('in handlestrategy');
       findWithLocation(this.state.collabCursors, contentBlock, callback);
@@ -267,15 +269,18 @@ addCollab = (user) => {
 
   update = (data) => {
     console.log(data);
+
+
     this.setState({editorState:EditorState.createWithContent(convertFromRaw(data), this.compositeDecorator)})
+
 
   }
 
-  onChange = (editorState) => {
+  onChange = async (editorState) => {
     // var position = window.getSelection().getRangeAt(0).getBoundingClientRect()
     // console.log(position);
     console.log('changing...');
-    this.setState({editorState});
+    await this.setState({editorState});
     var sendCursor = this.state.editorState.getSelection();
     this.state.socket.emit('edit', {content: convertToRaw(editorState.getCurrentContent()), docId: this.state.currentDoc, cursor: sendCursor, user: this.state.currentId});
   };
@@ -318,20 +323,41 @@ addCollab = (user) => {
     socket.on('connect', function() {
       socket.emit('room', currentDoc);
     });
+    // socket.on('update', function(data) {
+    //   console.log(data);
+    //   var cursor = _this.state.editorState.getSelection();
+    //
+    //   _this.update(data.content);
+    //   var currentState = _this.state.editorState;
+    //   currentState = EditorState.forceSelection(currentState, cursor);
+    //   _this.setState({editorState: currentState});
+    //   var currentCursors = _this.state.collabCursors;
+    //   currentCursors[data.user] = data.cursor;
+    //   _this.setState({collabCursors: currentCursors});
+    // })
+
     socket.on('update', function(data) {
       console.log(data);
+      var currentCursors = _this.state.collabCursors;
+      currentCursors[data.user] = data.cursor;
+      _this.setState({collabCursors: currentCursors})
+
       var cursor = _this.state.editorState.getSelection();
 
       _this.update(data.content);
+
       var currentState = _this.state.editorState;
-      currentState = EditorState.forceSelection(currentState, cursor);
-      _this.setState({editorState: currentState});
-      var currentCursors = _this.state.collabCursors;
+      var content = currentState.getCurrentContent();
+      var refreshedState = EditorState.createWithContent(content, this.createDecorator());
+      refreshedState = EditorState.forceSelection(refreshedState, cursor);
 
-      currentCursors[data.user] = data.cursor;
-      _this.setState({collabDocs: currentCursors});
+      _this.setState({editorState: refreshedState});
+
     })
-
+    // var editorState = this.state.editorState;
+    // var content = editorState.getCurrentContent();
+    // var newEditorState = EditorState.createWithContent(content, this.createDecorator());
+    // this.setState({editorState: newEditorState});
   }
 
 //   componentWillUnmount() {
@@ -498,11 +524,9 @@ onSetStyle = (name, val) => (e) => {
     this.setState({searchOpen: !this.state.searchOpen})
   }
   async searchChange(e) {
-    if (e.target.value === 'RG=AG') {
-      this.setState({search: "Rodrigo's girlfriend === Ariana Grande"})
-    } else {
+
     this.setState({search: e.target.value})
-  }
+
     var a = await this.state.search;
     var editorState = this.state.editorState;
     var content = editorState.getCurrentContent();
@@ -543,11 +567,11 @@ onSetStyle = (name, val) => (e) => {
   render() {
     // console.log('this.state.users', this.state.users);
     // console.log('this.state.collaborators', this.state.collaborators);
-     // console.log(this.state.collabCursors);
+     console.log(this.state.collabCursors);
      var regex = this.state.collabCursors;
      var renderCursors = this.state.collabCursors;
      var cursorArray = Object.keys(renderCursors).map(function(key) {
-        return <li>{renderCursors[key].anchorKey}</li>
+        return <li>{renderCursors[key].anchorKey}{renderCursors[key].anchorOffset}{renderCursors[key].focusKey}{renderCursors[key].focusOffset}</li>
        console.log(key);
        // console.log(renderCursors[key].getRangeAt(0).getBoundingClientRect())
 

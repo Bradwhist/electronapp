@@ -1,6 +1,17 @@
 import React from 'react';
 import axios from 'axios';
+import Modal from 'react-modal';
 
+const modalStyles = {
+  content : {
+    top                   : '50%',
+    left                  : '50%',
+    right                 : 'auto',
+    bottom                : 'auto',
+    marginRight           : '-50%',
+    transform             : 'translate(-50%, -50%)'
+  }
+};
 
 export default class Profile extends React.Component {
   constructor(props) {
@@ -9,9 +20,42 @@ export default class Profile extends React.Component {
       ownDocs: [],
       collabDocs: [],
       currentId: null,
+      modalIsOpen: false,
+      docTitle: '',
+      docPass: '',
+      modalToggle: true,
+      searchDocs: [],
+      searchStr: '',
     }
-
+    this.openModal = this.openModal.bind(this);
+    this.afterOpenModal = this.afterOpenModal.bind(this);
+    this.closeModal = this.closeModal.bind(this);
   }
+
+  ///Modal Functions//
+  openModal() {
+    this.setState({modalIsOpen: true});
+  }
+
+  afterOpenModal() {
+    // references are now sync'd and can be accessed.
+    this.subtitle.style.color = '#f00';
+  }
+
+  closeModal() {
+    this.setState({modalIsOpen: false});
+  }
+
+  openCreateModal() {
+    this.setState({modalToggle: true});
+    this.openModal();
+  }
+
+  openSearchModal() {
+    this.setState({modalToggle: false});
+    this.openModal();
+  }
+  ///////////////////////
 
   updateUser = () => {
 
@@ -112,6 +156,45 @@ testDocs = () => {
     // .then(response => response.json())
     // .then(response => )
   }
+  docTitleChange(e) {
+    this.setState({docTitle: e.target.value})
+  }
+  docPassChange(e) {
+    this.setState({docPass: e.target.value})
+  }
+  docInit() {
+    axios({
+      method: 'post',
+      url: 'http://localhost:3000/auth/doc',
+      data: {
+        title: this.state.docTitle,
+        pass: this.state.docPass,
+      }
+    })
+    .then(response => this.props.onNewDoc(response.data))
+    // .then(response => response.json())
+    // .then(response => )
+  }
+
+  async searchChange(e) {
+    await this.setState({searchStr: e.target.value})
+    this.searchInit();
+  }
+  searchInit() {
+    console.log(this.state.searchStr)
+    if (this.state.searchStr) {
+    axios({
+      method: 'GET',
+      url: 'http://localhost:3000/auth/doc/search/' + this.state.searchStr,
+    })
+    .then(response => {this.setState({searchDocs: response.data})})
+    .catch(err => console.log(err))
+  } else {
+    this.setState({searchDocs: []});
+  }
+}
+
+
     // getUserName = (userId) => {
     //
     // var ret;
@@ -130,13 +213,57 @@ testDocs = () => {
     // }
   render() {
 
-
+    console.log(this.state.searchDocs);
     return (
       <div>
         <h2 className="profile">User Profile</h2>
-        <button onClick={() => this.clickHandler()}>New Document</button>
+
+        <button onClick={() => this.openSearchModal()}>Search for document</button>
         <button onClick={this.logout.bind(this)}>Logout</button>
         <button onClick={() => this.testDocs()}>Test doc loader</button>
+        <button onClick={() => this.openCreateModal()}>Create Document</button>
+        {this.state.modalToggle ?
+          <Modal
+          isOpen={this.state.modalIsOpen}
+          onAfterOpen={this.afterOpenModal}
+          onRequestClose={this.closeModal}
+          style={modalStyles}
+          contentLabel="Example Modal"
+          >
+
+          <h2 ref={subtitle => this.subtitle = subtitle}>Add Conspirators</h2>
+          <button onClick={this.closeModal}>close</button>
+
+          <input type="text" name="user" value={this.state.docTitle}
+          onChange={this.docTitleChange.bind(this)}/>
+          <input type="text" name="pass" value={this.state.docPass}
+          onChange={this.docPassChange.bind(this)}/>
+          <button onClick={() => this.docInit()}>Login</button>
+
+        </Modal>
+        :
+        <Modal
+        isOpen={this.state.modalIsOpen}
+        onAfterOpen={this.afterOpenModal}
+        onRequestClose={this.closeModal}
+        style={modalStyles}
+        contentLabel="Example Modal"
+        >
+        <h2 ref={subtitle => this.subtitle = subtitle}>Docs Matching</h2>
+        <button onClick={this.closeModal}>close</button>
+        <input type="text" name="searchStr" value={this.state.searchStr}
+        onChange={(e) => this.searchChange(e)}/>
+        <button onClick={() => this.searchInit()}>Search</button>
+        <ul>
+        {this.state.searchDocs.map(doc => (
+          <li>
+            <p>{doc.title}---{doc.ownerName}</p>
+            <button onClick={() => this.props.onNewDoc(doc)}>Edit</button>
+          </li>
+        ))}
+        </ul>
+        </Modal>
+      }
         <h2>Your Docs</h2>
         <ul>
         {this.state.ownDocs.map(doc => (
@@ -155,6 +282,7 @@ testDocs = () => {
           </li>
         ))}
         </ul>
+
 
       </div>
     )
